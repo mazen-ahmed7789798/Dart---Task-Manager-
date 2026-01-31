@@ -1,0 +1,9 @@
+name: task_manager
+environment:
+  sdk: '^3.10.0'
+
+dependencies:
+  password_generator: '^1.0.0'
+
+  
+  
