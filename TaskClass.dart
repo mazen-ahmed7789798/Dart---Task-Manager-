@@ -1,3 +1,5 @@
+import 'package:uuid/uuid.dart';
+
 enum taskStatus { notStarted, inProgress, completed, paused, resumed }
 
 enum Importance {
@@ -38,12 +40,12 @@ class Task {
     toMap 
 
   */
-
+  String taskId = Uuid().v4();
   late String _taskName;
   DateTime _addDate = DateTime.now();
   String? _description;
   String? _category;
-  late Importance _taskImportance;
+  Importance _taskImportance = Importance.ImportantAndNeccesry;
   DateTime? _deadLine;
   taskStatus? _status;
   DateTime? _completeDate;
@@ -61,20 +63,29 @@ class Task {
   String? _assignedTo;
   DateTime? _assignedDate;
   String? _assignedBy;
-  Task({
-    required String name,
-    String category = "Unknown",
+  Task(
+    String name, {
+    String? category,
     taskStatus status = taskStatus.notStarted,
-    required Importance taskImportance,
-    required DateTime deadLine,
+    Importance taskImportance = Importance.ImportantAndNeccesry,
+    DateTime? deadLine,
     List<String>? tags,
     String? relatedTopics,
     String? description,
     List<DateTime>? reminders,
     Recurrence? reccurrence,
     Map<DateTime, String>? comments,
+    DateTime? completeDate,
+    DateTime? startDate,
+    DateTime? pauseDate,
+    int? progressPercentage,
+    Duration? estimatedTime,
+    Duration? timeSpent,
+    List<Task>? subTasks,
+    String? assignedTo,
+    String? assignedBy,
   }) {
-    this._deadLine = deadLine;
+    this._deadLine = deadLine ?? DateTime.now();
     this._taskName = name;
     this._category = category;
     this._taskImportance = taskImportance;
@@ -86,175 +97,107 @@ class Task {
     this._reminders = reminders;
     this._recurrence = reccurrence;
     this._comments = comments;
-  }
-
-  void editName(String newName) {
-    this._taskName = newName;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void editCategory(String newCategory) {
-    this._category = newCategory;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void editDeadLine(DateTime newDeadLine) {
-    this._deadLine = newDeadLine;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void editImportance(Importance newImportance) {
-    this._taskImportance = newImportance;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void editStatus(taskStatus newStatus) {
-    this._status = newStatus;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void pauseTask() {
-    this._status = taskStatus.paused;
-    this._pauseDate = DateTime.now();
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void startTask() {
-    this._status = taskStatus.inProgress;
-    this._startDate = DateTime.now();
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void resumeTask() {
-    this._status = taskStatus.inProgress;
-    this._startDate = DateTime.now();
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void markTaskAsComplete() {
-    this._status = taskStatus.completed;
-    this._completeDate = DateTime.now();
-    this._progressPercentage = 100;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void editDescription(String newDescription) {
-    this._description = newDescription;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void updateProgress(int precentage) {
-    if (precentage >= 0 && precentage <= 100) {
-      this._progressPercentage = precentage;
-      if (precentage == 100) {
-        this.markTaskAsComplete();
-      }
-      this._lastEditedDate = DateTime.now();
-    }
-  }
-
-  void addTimeSpent(Duration duration) {
-    this._timeSpent += duration;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void updateTimeSpent(int hours, int minutes) {
-    this._timeSpent = Duration(hours: hours, minutes: minutes);
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void addEstimation(Duration duration) {
-    this._estimatedTime = duration;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void addTag(String newTag) {
-    this._tags.add(newTag);
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void clearTags() {
-    this._tags.clear();
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void setTags(List newTags) {
-    this._tags.clear();
-    this._tags.addAll(newTags.cast<String>());
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void addSubTask(Task newTask) {
-    this._subTasks.add(newTask);
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void clearSubTasks() {
-    this._subTasks.clear();
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void setSubTasks(List<Task> subTasks) {
-    this._subTasks.clear();
-    this._subTasks.addAll(subTasks);
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void addReminder(DateTime newReminder) {
-    this._reminders!.add(newReminder);
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void clearReminders() {
-    this._reminders!.clear();
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void addReminders(List<DateTime> newReminders) {
-    this._reminders!.addAll(newReminders);
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void setReminders(List<DateTime> newReminders) {
-    this._reminders!.clear();
-    this._reminders = newReminders;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void addComment(String newComment) {
-    this._comments![DateTime.now()] = newComment;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void clearComments() {
-    this._comments!.clear();
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void addComments(List<Map<DateTime, String>> newComments) {
-    for (var x in newComments) {
-      this._comments!.addAll(x);
-    }
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void setComments(Map<DateTime, String> newComments) {
-    this._comments = newComments;
-    this._lastEditedDate = DateTime.now();
-  }
-
-  void assignTo(String personName, {String? assignedBy}) {
-    this._assignedTo = personName;
-    this._assignedDate = DateTime.now();
+    this._completeDate = completeDate;
+    this._startDate = startDate;
+    this._pauseDate = pauseDate;
+    this._progressPercentage = progressPercentage ?? 0;
+    this._estimatedTime = estimatedTime ?? Duration.zero;
+    this._timeSpent = timeSpent ?? Duration.zero;
+    this._subTasks = subTasks ?? [];
+    this._assignedTo = assignedTo;
     this._assignedBy = assignedBy;
-    this._lastEditedDate = DateTime.now();
   }
 
-  void unassign() {
-    this._assignedTo = null;
-    this._assignedDate = null;
-    this._assignedBy = null;
-    this._lastEditedDate = DateTime.now();
+  // Setters
+  set taskName(String name) {
+    this._taskName = name;
+  }
+
+  set addDate(DateTime addDate) {
+    this._addDate = addDate;
+  }
+
+  set description(String? description) {
+    this._description = description;
+  }
+
+  set category(String? category) {
+    this._category = category;
+  }
+
+  set taskImportance(Importance importance) {
+    this._taskImportance = importance;
+  }
+
+  set deadLine(DateTime deadLine) {
+    this._deadLine = deadLine;
+  }
+
+  set status(taskStatus? status) {
+    this._status = status;
+  }
+
+  set completeDate(DateTime? completeDate) {
+    this._completeDate = completeDate;
+  }
+
+  set startDate(DateTime? startDate) {
+    this._startDate = startDate;
+  }
+
+  set pauseDate(DateTime? pauseDate) {
+    this._pauseDate = pauseDate;
+  }
+
+  set lastEditedDate(DateTime? lastEditedDate) {
+    this._lastEditedDate = lastEditedDate;
+  }
+
+  set tags(List<String> tags) {
+    this._tags = tags;
+  }
+
+  set progressPercentage(int percentage) {
+    this._progressPercentage = percentage;
+  }
+
+  set estimatedTime(Duration estimatedTime) {
+    this._estimatedTime = estimatedTime;
+  }
+
+  set timeSpent(Duration timeSpent) {
+    this._timeSpent = timeSpent;
+  }
+
+  set subTasks(List<Task> subTasks) {
+    this._subTasks = subTasks;
+  }
+
+  set reminders(List<DateTime>? reminders) {
+    this._reminders = reminders;
+  }
+
+  set recurrence(Recurrence? recurrence) {
+    this._recurrence = recurrence;
+  }
+
+  void addComment(DateTime date, String comment) {
+    if (this._comments == null) {
+      this._comments = {};
+    }
+    this._comments![date] = comment;
+  }
+
+  set assignedTo(String? assignedTo) {
+    this._assignedTo = assignedTo;
+  }
+
+  set assignedDate(DateTime? assignedDate) {
+    this._assignedDate = assignedDate;
+  }
+
+  set assignedBy(String? assignedBy) {
+    this._assignedBy = assignedBy;
   }
 
   String get taskName {
@@ -359,14 +302,23 @@ class Task {
       "assignedBy": this._assignedBy,
     };
   }
-}
 
-void main() {
-  // Task Class Test
-  Task task = Task(
-    name: "صلاة المغرب",
-    taskImportance: Importance.ImportantAndNeccesry,
-    deadLine: DateTime(2029, 9, 9),
-  );
-  print(task.taskName);
+  factory Task.fromJson(Map<String, dynamic> json) {
+    try {
+      return Task(
+        json['taskName'],
+        category: json['category'],
+        taskImportance: Importance.values[json['taskImportance']],
+        deadLine: DateTime.parse(json['deadLine']),
+        tags: List<String>.from(json['tags']),
+        description: json['description'],
+      );
+    } catch (e) {
+      throw Exception("Failed to parse Task from JSON");
+    }
+  }
+
+  String toJson() {
+    return this.toMap().toString();
+  }
 }
