@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'dart:convert';
 
 enum taskStatus { notStarted, inProgress, completed, paused, resumed }
 
@@ -109,83 +110,82 @@ class Task {
   }
 
   // Setters
-  set taskName(String name) {
+  set setTaskName(String name) {
     this._taskName = name;
   }
 
-  set addDate(DateTime addDate) {
+  set setAddDate(DateTime addDate) {
     this._addDate = addDate;
   }
 
-  set description(String? description) {
+  set setDescription(String? description) {
     this._description = description;
   }
 
-  set category(String? category) {
+  set setCategory(String? category) {
     this._category = category;
   }
 
-  set taskImportance(Importance importance) {
-    this._taskImportance = importance;
+  set setTaskImportance(Importance? importance) {
+    this._taskImportance = importance ?? this.taskImportance;
   }
 
-  set deadLine(DateTime deadLine) {
+  set setDeadLine(DateTime deadLine) {
     this._deadLine = deadLine;
   }
 
-  set status(taskStatus? status) {
+  set setStatus(taskStatus? status) {
     this._status = status;
   }
 
-  set completeDate(DateTime? completeDate) {
+  set setCompleteDate(DateTime? completeDate) {
     this._completeDate = completeDate;
   }
 
-  set startDate(DateTime? startDate) {
+  set setStartDate(DateTime? startDate) {
     this._startDate = startDate;
   }
 
-  set pauseDate(DateTime? pauseDate) {
+  set setPauseDate(DateTime? pauseDate) {
     this._pauseDate = pauseDate;
   }
 
-  set lastEditedDate(DateTime? lastEditedDate) {
+  set setLastEditedDate(DateTime? lastEditedDate) {
     this._lastEditedDate = lastEditedDate;
   }
 
-  set tags(List<String> tags) {
+  set setTags(List<String> tags) {
     this._tags = tags;
   }
 
-  set progressPercentage(int percentage) {
+  set setProgressPercentage(int percentage) {
     this._progressPercentage = percentage;
   }
 
-  set estimatedTime(Duration estimatedTime) {
+  set setEstimatedTime(Duration estimatedTime) {
     this._estimatedTime = estimatedTime;
   }
 
-  set timeSpent(Duration timeSpent) {
+  set setTimeSpent(Duration timeSpent) {
     this._timeSpent = timeSpent;
   }
 
-  set subTasks(List<Task> subTasks) {
+  set setSubTasks(List<Task> subTasks) {
     this._subTasks = subTasks;
   }
 
-  set reminders(List<DateTime>? reminders) {
+  set setReminders(List<DateTime>? reminders) {
     this._reminders = reminders;
   }
 
-  set recurrence(Recurrence? recurrence) {
+  set setRecurrence(Recurrence? recurrence) {
     this._recurrence = recurrence;
   }
 
-  void addComment(DateTime date, String comment) {
-    if (this._comments == null) {
-      this._comments = {};
+  set setComments(Map<DateTime, String>? comments) {
+    if (comments != null) {
+      this._comments = _comments;
     }
-    this._comments![date] = comment;
   }
 
   set assignedTo(String? assignedTo) {
@@ -280,13 +280,18 @@ class Task {
     return this._assignedBy;
   }
 
+  Importance? get taskImportance {
+    return _taskImportance;
+  }
+
   Map<String, dynamic> toMap() {
     return {
+      'taskId': this.taskId,
       "taskName": this._taskName,
       "addDate": this._addDate,
       "category": this._category,
       "taskImportance": this._taskImportance,
-      "deadLine": this._deadLine,
+      "deadLine": this._deadLine?.toIso8601String(),
       "status": this._status,
       "completeDate": this._completeDate,
       "startDate": this._startDate,
@@ -307,18 +312,19 @@ class Task {
     try {
       return Task(
         json['taskName'],
-        category: json['category'],
-        taskImportance: Importance.values[json['taskImportance']],
+        category: json['category'] ?? null,
+        taskImportance: json['taskImportance'],
         deadLine: DateTime.parse(json['deadLine']),
         tags: List<String>.from(json['tags']),
         description: json['description'],
       );
     } catch (e) {
-      throw Exception("Failed to parse Task from JSON");
+      print(e);
+      throw Exception();
     }
   }
 
   String toJson() {
-    return this.toMap().toString();
+    return jsonEncode(toMap());
   }
 }

@@ -3,11 +3,12 @@ import "TaskClass.dart";
 class TaskManager {
   List<Task> _tasks = [];
   DateTime? _lastEditDate;
-  late String userId;
-  TaskManager({required this.userId});
+  late String? userId;
+  TaskManager({this.userId});
   List<Task> get tasks {
     return _tasks;
   }
+
   // Add method
   void addTask(
     String taskName, {
@@ -52,9 +53,9 @@ class TaskManager {
       assignedBy: taskAssignedBy,
     );
     _tasks.add(newTask);
-    print(newTask.toJson());
     _lastEditDate = DateTime.now();
   }
+
   // remove method
   void removeTask(String id) {
     for (Task x in tasks) {
@@ -63,6 +64,37 @@ class TaskManager {
       }
     }
   }
+
+  // update method
+  Task? updateTask(
+    String id, {
+    String? name,
+    String? category,
+    Importance? taskImportance,
+    DateTime? deadLine,
+    taskStatus? status,
+    DateTime? completeDate,
+    DateTime? startDate,
+    DateTime? pauseDate,
+    String? description,
+    int? progressPercentage,
+    Duration? estimatedTimeSeconds,
+    Duration? timeSpentSeconds,
+    List<String>? tags,
+    String? assignedTo,
+    DateTime? assignedDate,
+    String? assignedBy,
+  }) {
+    var task = searchById(id);
+    if (task.runtimeType != Task) {
+      return null;
+    }
+    Task newTask = task;
+    newTask.setTaskName = name ?? newTask.taskName;
+    newTask.setCategory = category ?? newTask.category;
+    newTask.setTaskImportance = taskImportance ?? newTask.taskImportance;
+  }
+
   // search method
   List<Task> search(String word) {
     List<Task> resutls = [];
@@ -74,13 +106,22 @@ class TaskManager {
     }
     // Find the word in values of these maps
     for (Map<String, dynamic> x in tasksForSearch) {
-      for (var v in x.values) {
-        if (v == word) {
+      for (dynamic v in x.values) {
+        if (v.toString().contains(word)) {
           resutls.add(Task.fromJson(x));
         }
       }
     }
+
     return resutls;
+  }
+
+  dynamic searchById(String id) {
+    for (Task x in tasks) {
+      if (x.taskId == id) {
+        return x;
+      }
+    }
   }
 
   int get taskCount {
@@ -93,17 +134,7 @@ class TaskManager {
 }
 
 void main() {
-  TaskManager taskManager = TaskManager(userId: "user123");
-  taskManager.addTask(
-    "صلاة المغرب",
-    taskDescription: "أداء صلاة المغرب في وقتها",
-    importance: Importance.ImportantAndNeccesry,
-    category: "عبادة",
-    deadLine: DateTime.now().add(Duration(hours: 1)),
-    status: taskStatus.notStarted,
-    tags: ["صلاة", "عبادة"],
-  );
-
-  print("Total tasks: ${taskManager.taskCount}");
-  print("Last edit date: ${taskManager.lastEditDate}");
+  TaskManager taskManager = TaskManager();
+  taskManager.addTask("صلاة الظهر");
+  print(taskManager.search("صلاة الظهر"));
 }
